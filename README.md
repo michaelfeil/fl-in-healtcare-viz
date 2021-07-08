@@ -1,2 +1,2 @@
-# fl-in-healtcare-viz
-Visualizations for the Seminar "Federated Learning in Healtcare"
+# Visualizations for the Seminar "Federated Learning in Healtcare" @ TU Munich
+
