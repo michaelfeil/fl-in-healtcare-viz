@@ -8,10 +8,11 @@ Visualizes gradient descent (line-search, non-stochastic) for non-iid Gaussian d
 ## installation.
 Tested with this conda env, may run with most versions of numpy, scipy and matplotlib. 
 plotly and mpld3 only need for exporting the plots to html. 
-'''conda create -n newcondaenv python==3.6.* --file requirements.txt'''
+
+```conda create -n newcondaenv python==3.6.* --file requirements.txt```
 
 ## run the plots
-'''python plot_fedavg_gd.py'''
+```python plot_fedavg_gd.py```
 
 ## samples
 ![](/plot_output/pdf_2_gd.svg   " pdf_2_gd.svg ")
