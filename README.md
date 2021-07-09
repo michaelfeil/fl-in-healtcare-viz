@@ -12,3 +12,7 @@ plotly and mpld3 only need for exporting the plots to html.
 
 ## run the plots
 '''python plot_fedavg_gd.py'''
+
+## samples
+![](/plot_output/pdf_2_gd.svg   " pdf_2_gd.svg ")
+![](/plot_output/pdf_addedfedavg_gd_10_100.svg   " pdf_addedfedavg_gd_10_100.svg ")
