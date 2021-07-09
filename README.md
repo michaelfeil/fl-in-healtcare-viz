@@ -5,7 +5,7 @@ Visualizes gradient descent (line-search, non-stochastic) for non-iid Gaussian d
 3D Visualizations using Matplotlib.
 
 # Usage
-## installation.
+## installation: local
 Tested with this conda env, may run with most versions of numpy, scipy and matplotlib. 
 plotly and mpld3 only need for exporting the plots to html. 
 
