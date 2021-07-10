@@ -18,6 +18,7 @@ class MultivarianteGaussian:
     def __init__(self, mu, sigma) -> None:
         assert mu.shape[0] ==sigma.shape[0] == sigma.shape[1]
         self.n = mu.shape[0]
+        self.sigma = sigma
         sigma_det = np.linalg.det(sigma)
         self.sigma_inv = np.linalg.inv(sigma)
         self.N = np.sqrt((2 * np.pi) ** self.n * sigma_det)
