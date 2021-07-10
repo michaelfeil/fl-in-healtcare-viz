@@ -106,6 +106,18 @@ def fedavg(
     theta0=START_THETA0,
     theta1=START_THETA1,
 ):
+    """Federated averaging
+    
+    :param function_descent_1: python function with inputs (float, float) -> output float
+    :param function_descent_2: python function with inputs (float, float) -> output float
+    :param function_eval: python function with inputs (float, float) -> output float
+    :param communication_rounds: int, number of rounds
+    :param gd_steps_local: int, number of gradient decent steps
+    :param theta0: model weight, float
+    :param theta1: model weight, float
+
+    return history_server, history_client1, history_client2
+    """
     x1_x2_z = np.array((theta0, theta1, function_eval(theta0=theta0, theta1=theta1)))
     history_server, history_client1, history_client2 = [], [], []
     history_server.append(x1_x2_z.tolist())
