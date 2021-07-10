@@ -4,9 +4,9 @@ TU Munich, Website https://albarqouni.github.io/courses/flhsose2021/
 Visualizes gradient descent (line-search, non-stochastic) for non-iid Gaussian distributions with Federated Averaging.
 3D Visualizations using Matplotlib.
 
-# Usage: Colab
+# Usage: Run Jupyter Notebook online
 
-
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/michaelfeil/fl-in-healtcare-viz/HEAD?filepath=colab-viz-fedavg-vs-gd.ipynb)
 
 # Usage: local
 ## installation
