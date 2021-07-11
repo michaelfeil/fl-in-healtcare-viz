@@ -18,13 +18,14 @@ START_THETA = np.array([-2.0, 0.1])
 class MultivarianteGaussian:
     """Multivariante Gaussian definition and evaluation"""
     def __init__(self, mu, sigma) -> None:
+        assert mu.ndim == 1 and sigma.ndim == 2
         assert mu.shape[0] ==sigma.shape[0] == sigma.shape[1]
-        self.n = mu.shape[0]
+        
         self.sigma = sigma
-        sigma_det = np.linalg.det(sigma)
-        self.sigma_inv = np.linalg.inv(sigma)
-        self.N = np.sqrt((2 * np.pi) ** self.n * sigma_det)
         self.mu = mu
+
+        self.sigma_inv = np.linalg.inv(sigma)
+        self.N = np.sqrt((2 * np.pi) ** mu.shape[0] * np.linalg.det(sigma))
 
     def evaluate(
         self, theta_vec: np.ndarray
@@ -184,6 +185,3 @@ class PDFsManipulate:
 
 f_multi = PDFsManipulate(functions=[m1.evaluate, m2.evaluate], method = np.multiply)
 f_add = PDFsManipulate(functions=[m1.evaluate, m2.evaluate], method = np.add)
-
-
-print(PDFsManipulate(functions=[m1.evaluate, m1.evaluate], method = np.add).normalizer_pdf)

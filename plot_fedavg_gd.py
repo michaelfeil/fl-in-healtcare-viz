@@ -104,7 +104,7 @@ def mpl_multivariante_3d_gd(
     #ax.set_zlim(-0.15, 0.2)
     ax.set_zticks(np.linspace(0, 0.2, 5))
 
-    offset_contour = -0.15
+    offset_contour = -0.03
     ax.view_init(elev=20.0, azim=-125)
     ax.dist = 7.5
 
@@ -128,7 +128,7 @@ def mpl_multivariante_3d_gd(
         ax.plot(
             history[:, 0],
             history[:, 1],
-            np.full_like(history[:, 1], offset_contour),
+            np.full_like(history[:, 1], offset_contour+0.001),
             lw=2,
             c=colors[i],
             zorder=100,
@@ -151,7 +151,7 @@ def mpl_multivariante_3d_gd(
             ax.plot(
                 hs[:, 0],
                 hs[:, 1],
-                np.full_like(hs[:, 1], offset_contour),
+                np.full_like(hs[:, 1], offset_contour+0.001),
                 lw=2,
                 c="red",
                 zorder=100,
