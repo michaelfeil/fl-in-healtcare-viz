@@ -16,8 +16,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from computation_fedavg_gd import grad_descent, fedavg
-from computation_fedavg_gd import m1, m2, f_added # import gaussian functions
-from computation_fedavg_gd import START_THETA0, START_THETA1
+from computation_fedavg_gd import m1, m2, f_multi, f_add # import gaussian functions
+from computation_fedavg_gd import START_THETA0, START_THETA1, START_THETA
 
 try:
     import plotly.graph_objects as go
@@ -33,7 +33,7 @@ except:
     pass
 
 
-OUTPUT_FOLDER = ".\\plot_output"
+OUTPUT_FOLDER = ".\\plot_output2"
 
 # ----------------------------------------------------------------------------------------#
 # plotting utils
@@ -59,30 +59,27 @@ def mpl_multivariante_3d_gd(
     target_function: List[np.ndarray] = [],
     cmap_target: List[str] = [],
     label_target: List[str] = [],
-    fedavg_1=None,
-    fedavg_2=None,
+    fedavg_clients=None,
     fedavg_eval=None,
-    fedavg_communication_rounds=10,
-    fedavg_steps_local=10,
+    fedavg_communication_rounds: List[int] = [10],
+    fedavg_steps_local: List[int] = [10],
     title: str = "",
     hist_slice=slice(None),
-    theta0=START_THETA0,
-    theta1=START_THETA1,
+    theta=START_THETA,
 ):
     """save plot as svg
     
     :param filename: path for writing the plot to
     :param name_labels: List[str], name of the labels for the history,
     :param colors: List[str], list of matplotlib colors
-    :param functions: list,  # list of funtions for evaluationg each descent
+    :param functions: list,  # list of funtions for evaluationg each client descent
     :param target_function: List[np.ndarray], # global function to be plotted.
     :param cmap_target: List[str],
     :param label_target: List[str],
-    :param fedavg_1: None,
-    :param fedavg_2=None,
-    :param fedavg_eval=None,
-    :param fedavg_communication_rounds=10,
-    :param fedavg_steps_local=10,
+    :param fedavg_clients: None or List[python methods],
+    :param fedavg_eval: python method, default None
+    :param fedavg_communication_rounds: List[int] default [10],
+    :param fedavg_steps_local: List[int] default [10],
     :param title: str = "",
     :param hist_slice=slice(None),
 
@@ -104,7 +101,7 @@ def mpl_multivariante_3d_gd(
     # 3D Settings
     fig = plt.figure()
     ax = fig.gca(projection="3d")
-    ax.set_zlim(-0.15, 0.2)
+    #ax.set_zlim(-0.15, 0.2)
     ax.set_zticks(np.linspace(0, 0.2, 5))
 
     offset_contour = -0.15
@@ -117,7 +114,7 @@ def mpl_multivariante_3d_gd(
 
     # history of regular GD
     for i in range(len(name_labels)):
-        history = grad_descent(functions[i], theta0=theta0, theta1=theta1,)
+        history = grad_descent(functions[i], theta = theta)
         history = history[hist_slice]
         ax.plot(
             history[:, 0],
@@ -138,29 +135,29 @@ def mpl_multivariante_3d_gd(
         )
 
     # history of FedAvg
-    if fedavg_1 is not None:
-        hs, h1, h2 = fedavg(
-                fedavg_1,
-                fedavg_2,
+    if fedavg_clients is not None:
+        for i in range(len(fedavg_communication_rounds)):
+            hs, h_clients = fedavg(
+                fedavg_clients,
                 fedavg_eval,
-                fedavg_communication_rounds,
-                fedavg_steps_local,
-                theta0=theta0,
-                theta1=theta1,
+                fedavg_communication_rounds[i],
+                fedavg_steps_local[i],
+                theta=theta,
             )
-        hs = hs[hist_slice]
-        ax.plot(hs[:, 0], hs[:, 1], hs[:, 2], label="FedAvg", c="red", lw=5, zorder=100)
-        # on contour plot
-        ax.plot(
-            hs[:, 0],
-            hs[:, 1],
-            np.full_like(hs[:, 1], offset_contour),
-            lw=2,
-            c="red",
-            zorder=100,
-        )
+            hs = hs[hist_slice]
+            hs = hs[hist_slice]
+            ax.plot(hs[:, 0], hs[:, 1], hs[:, 2], label="FedAvg", c="red", lw=5, zorder=100)
+            # on contour plot
+            ax.plot(
+                hs[:, 0],
+                hs[:, 1],
+                np.full_like(hs[:, 1], offset_contour),
+                lw=2,
+                c="red",
+                zorder=100,
+            )
 
-        print(title, hs[-1, :])
+            print(title, hs[-1, :])
 
     # plot target function
     for i in range(len(target_function)):
@@ -185,6 +182,7 @@ def mpl_multivariante_3d_gd(
             offset=offset_contour,
             cmap=cmap_target[i],
             zorder=0,
+            alpha=.97,
         )
 
     ax.legend()
@@ -203,37 +201,34 @@ def mpl_multivariante_3d_gd(
 
 
 def mpld3_multivariante_2d_gd(
-    filename: str,
-    name_labels: List[str],
-    colors: List[str],
-    functions: list,  # list of funtions
-    target_function: List[np.ndarray],
-    cmap_target: List[str],
-    label_target: List[str],
-    fedavg_1=None,
-    fedavg_2=None,
+    filename: str= "",
+    name_labels: List[str] = [],
+    colors: List[str] = [],
+    functions: list = [],  # list of funtions
+    target_function: List[np.ndarray] = [],
+    cmap_target: List[str] = [],
+    label_target: List[str] = [],
+    fedavg_clients=None,
     fedavg_eval=None,
-    fedavg_communication_rounds=10,
-    fedavg_steps_local=10,
+    fedavg_communication_rounds: List[int] = [10],
+    fedavg_steps_local: List[int] = [10],
     title: str = "",
     hist_slice=slice(None),
-    theta0=START_THETA0,
-    theta1=START_THETA1,
+    theta=START_THETA,
 ):
     """save plot as html using mpld3
     
     :param filename: path for writing the html plot to
     :param name_labels: List[str], name of the labels for the history,
     :param colors: List[str], list of matplotlib colors
-    :param functions: list,  # list of funtions for evaluationg each descent
+    :param functions: list,  # list of funtions for evaluationg each client descent
     :param target_function: List[np.ndarray], # global function to be plotted.
     :param cmap_target: List[str],
     :param label_target: List[str],
-    :param fedavg_1=None,
-    :param fedavg_2=None,
-    :param fedavg_eval=None,
-    :param fedavg_communication_rounds=[10],
-    :param fedavg_steps_local=[10],
+    :param fedavg_clients: None or List[python methods],
+    :param fedavg_eval: python method, default None
+    :param fedavg_communication_rounds: List[int] default [10],
+    :param fedavg_steps_local: List[int] default [10],
     :param title: str = "",
     :param hist_slice=slice(None),
 
@@ -249,7 +244,7 @@ def mpld3_multivariante_2d_gd(
 
     print(
         f"create 2D plot using SGD on {list(zip(name_labels, colors))}"
-        f"over distribution {label_target}"
+        f" over distribution {label_target}"
     )
 
     # 2D Settings
@@ -286,7 +281,7 @@ def mpld3_multivariante_2d_gd(
     
     # history of regular GD
     for i in range(len(name_labels)):
-        history = grad_descent(functions[i], theta0=theta0, theta1=theta1,)
+        history = grad_descent(functions[i], theta = theta)
         history = history[hist_slice]
         plotted, = ax.plot(
             history[:, 0],
@@ -307,28 +302,18 @@ def mpld3_multivariante_2d_gd(
 
 
     # history of FedAvg
-    if fedavg_1 is not None:
+    if fedavg_clients is not None:
         for i in range(len(fedavg_communication_rounds)):
-            hs, h1, h2 = fedavg(
-                fedavg_1,
-                fedavg_2,
-                fedavg_eval,
-                fedavg_communication_rounds[i],
-                fedavg_steps_local[i],
-                theta0=theta0,
-                theta1=theta1,
+            hs, h_clients = fedavg(
+                function_clients=fedavg_clients,
+                function_eval=fedavg_eval,
+                communication_rounds=fedavg_communication_rounds[i],
+                gd_steps_local=fedavg_steps_local[i],
+                theta = theta,
             )
             hs = hs[hist_slice]
             plotted, = ax.plot(hs[:, 0], hs[:, 1], label="FedAvg", c="red", lw=5, zorder=100)
-            # on contour plot
-            # ax.plot(
-            #     hs[:, 0],
-            #     hs[:, 1],
-            #     np.full_like(hs[:, 1], offset_contour),
-            #     lw=2,
-            #     c="red",
-            #     zorder=100,
-            # )
+            
             plots_all.append(plotted)
             labels_all.append(f"toggle FedAvg_rounds_{fedavg_communication_rounds[i]}_steps_{fedavg_steps_local[i]}")
             plots_hover.append(plotted)
@@ -376,7 +361,7 @@ SAMPLE_GRID_VECTOR[:, :, 1] = Y
 # sampling grid initialized
 # for visualization target function over sampling grid, global function == Z, client1 = Z1.
 
-Z = f_added(theta_vec =SAMPLE_GRID_VECTOR)
+Z = f_multi.evaluate(theta_vec =SAMPLE_GRID_VECTOR)
 Z1 = m1.evaluate(theta_vec = SAMPLE_GRID_VECTOR)
 Z2 = m2.evaluate(theta_vec = SAMPLE_GRID_VECTOR)
 
@@ -398,10 +383,10 @@ if __name__ == "__main__":
     )
 
     mpld3_multivariante_2d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_added_gd_2d"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd_2d"),
         name_labels=[" GD client 1&2", " GD client 2", " GD client 1"],
         colors=["purple", "orange", "green"],
-        functions=[f_added, m2.evaluate, m1.evaluate],
+        functions=[f_multi.evaluate, m2.evaluate, m1.evaluate],
         target_function=[Z1, Z2, Z],
         cmap_target=[ matplotlib.cm.Greens, matplotlib.cm.Oranges, "Purples",],
         label_target=[ " client 1 target", " client 2 target", " accumulated targets (1&2)"],
@@ -409,80 +394,77 @@ if __name__ == "__main__":
     )
 
     mpld3_multivariante_2d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_added_gd_2d_fedavg"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd_2d_fedavg"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
-        functions=[f_added, m2.evaluate, m1.evaluate],
+        functions=[f_multi.evaluate, m2.evaluate, m1.evaluate],
         target_function=[Z1, Z2, Z],
         cmap_target=[ matplotlib.cm.Greens, matplotlib.cm.Oranges, "Purples",],
         label_target=[ "client 1 target", "client 2 target", "accumulated targets (1&2)"],
-        fedavg_1=m1.evaluate,
-        fedavg_2=m2.evaluate,
-        fedavg_eval=f_added,
+        fedavg_clients=[m1.evaluate, m2.evaluate],
+        fedavg_eval=f_multi.evaluate,
         fedavg_communication_rounds=[20, 5, 10, 100, 1000],
         fedavg_steps_local=[200, 200, 100, 10, 1],
         title="FedAvg from \u03F4 = (-2,0.1)",
     )
 
     mpld3_multivariante_2d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_added_gd_2d_fedavg_start2"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd_2d_fedavg_start2"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
-        functions=[f_added, m2.evaluate, m1.evaluate],
+        functions=[f_multi.evaluate, m2.evaluate, m1.evaluate],
         target_function=[Z1, Z2, Z],
         cmap_target=[ matplotlib.cm.Greens, matplotlib.cm.Oranges, "Purples",],
         label_target=[ "client 1 target", "client 2 target", "accumulated targets (1&2)"],
-        fedavg_1=m1.evaluate,
-        fedavg_2=m2.evaluate,
-        fedavg_eval=f_added,
+        fedavg_clients=[m1.evaluate, m2.evaluate],
+        fedavg_eval=f_multi.evaluate,
         fedavg_communication_rounds=[20, 5, 10, 100, 1000],
         fedavg_steps_local=[200, 200, 100, 10, 1],
         title="FedAvg from \u03F4 = (2,-2)",
-        theta0=2.0,
-        theta1=-2.
+       theta=np.array([2.0, -2])
     )
 
 
     # run some plots
 
     mpl_multivariante_3d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_added_gd_single"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd_single"),
         name_labels=["GD client 1&2"],
         colors=[
             "purple",
         ],
         functions=[
-            f_added,
+            f_multi.evaluate,
         ],
         target_function=[Z],
         cmap_target=["Purples"],
         label_target=["global target"],
-        fedavg_eval=f_added,
+        fedavg_eval=f_multi.evaluate,
     )
 
     mpl_multivariante_3d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_added_argmax_single"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_add_argmax_single"),
         name_labels=["argmax client 1&2"],  
         colors=[
             "purple",
         ],
-        functions=[f_added],
+        functions=[f_multi.evaluate],
         target_function=[Z],
         cmap_target=["Purples"],
         label_target=["global target"],
-        fedavg_eval=f_added,
+        fedavg_eval=f_multi.evaluate,
         hist_slice=slice(-2, None), # does not actually do argmax, but just plot last step of GD
     )
 
     mpl_multivariante_3d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_added_gd"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
-        functions=[f_added, m2.evaluate, m1.evaluate],
+        functions=[f_multi.evaluate, m2.evaluate, m1.evaluate],
         target_function=[Z],
         cmap_target=["Purples"],
         label_target=["global target"],
-        fedavg_eval=f_added,
+        fedavg_eval=f_multi.evaluate,
     )
 
 
@@ -509,63 +491,59 @@ if __name__ == "__main__":
         fedavg_eval=m1.evaluate,
     )
     mpl_multivariante_3d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_addedfedavg_gd_10_100"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_addfedavg_gd_10_100"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
-        functions=[f_added, m2.evaluate, m1.evaluate],
+        functions=[f_multi.evaluate, m2.evaluate, m1.evaluate],
         target_function=[Z],
         cmap_target=["Purples"],
         label_target=["global target"],
-        fedavg_1=m1.evaluate,
-        fedavg_2=m2.evaluate,
-        fedavg_eval=f_added,
-        fedavg_communication_rounds=10,
-        fedavg_steps_local=100,
+        fedavg_clients=[m1.evaluate, m2.evaluate],
+        fedavg_eval=f_multi.evaluate,
+        fedavg_communication_rounds=[10],
+        fedavg_steps_local=[100],
         title="FedAvg 10 rounds with 100 gd steps",
     )
     mpl_multivariante_3d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_addedfedavg_gd_2_1000"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_addfedavg_gd_2_1000"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
-        functions=[f_added, m2.evaluate, m1.evaluate],
+        functions=[f_multi.evaluate, m2.evaluate, m1.evaluate],
         target_function=[Z],
         cmap_target=["Purples"],
         label_target=["global target"],
-        fedavg_1=m1.evaluate,
-        fedavg_2=m2.evaluate,
-        fedavg_eval=f_added,
-        fedavg_communication_rounds=2,
-        fedavg_steps_local=500,
+        fedavg_clients=[m1.evaluate, m2.evaluate],
+        fedavg_eval=f_multi.evaluate,
+        fedavg_communication_rounds=[2],
+        fedavg_steps_local=[500],
         title="FedAvg 2 rounds with 1000 gd steps",
     )
     mpl_multivariante_3d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_addedfedavg_gd_50_20"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_addfedavg_gd_50_20"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
-        functions=[f_added, m2.evaluate, m1.evaluate],
+        functions=[f_multi.evaluate, m2.evaluate, m1.evaluate],
         target_function=[Z],
         cmap_target=["Purples"],
         label_target=["global target"],
-        fedavg_1=m1.evaluate,
-        fedavg_2=m2.evaluate,
-        fedavg_eval=f_added,
-        fedavg_communication_rounds=50,
-        fedavg_steps_local=20,
+        fedavg_clients=[m1.evaluate, m2.evaluate],
+        fedavg_eval=f_multi.evaluate,
+        fedavg_communication_rounds=[50],
+        fedavg_steps_local=[20],
         title="FedAvg 50 rounds with 20 gd steps",
     )
     mpl_multivariante_3d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_addedfedavg_gd_1000_1"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_addfedavg_gd_1000_1"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
-        functions=[f_added, m2.evaluate, m1.evaluate],
+        functions=[f_multi.evaluate, m2.evaluate, m1.evaluate],
         target_function=[Z],
         cmap_target=["Purples"],
         label_target=["global target"],
-        fedavg_1=m1.evaluate,
-        fedavg_2=m2.evaluate,
-        fedavg_eval=f_added,
-        fedavg_communication_rounds=1000,
-        fedavg_steps_local=1,
+        fedavg_clients=[m1.evaluate, m2.evaluate],
+        fedavg_eval=f_multi.evaluate,
+        fedavg_communication_rounds=[1000],
+        fedavg_steps_local=[1],
         title="FedAvg 1000 rounds with 1 gd step",
     )
     mpl_multivariante_3d_gd(
@@ -576,7 +554,7 @@ if __name__ == "__main__":
         target_function=[Z1],
         cmap_target=["Greens"],
         label_target=["client 1 target"],
-        fedavg_eval=f_added,
+        fedavg_eval=f_multi.evaluate,
     )
 
     mpl_multivariante_3d_gd(
@@ -587,17 +565,17 @@ if __name__ == "__main__":
         target_function=[Z2],
         cmap_target=["Oranges"],
         label_target=["client 2 target"],
-        fedavg_eval=f_added,
+        fedavg_eval=f_multi.evaluate,
     )
     mpl_multivariante_3d_gd(
-        filename=os.path.join(OUTPUT_FOLDER, "pdf_added_no-gd"),
+        filename=os.path.join(OUTPUT_FOLDER, "pdf_add_no-gd"),
         name_labels=[],
         colors=[],
         functions=[],
         target_function=[Z],
         cmap_target=["Purples"],
         label_target=["global target"],
-        fedavg_eval=f_added,
+        fedavg_eval=f_multi.evaluate,
     )
 
     plt.show()

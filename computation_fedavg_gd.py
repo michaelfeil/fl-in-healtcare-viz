@@ -1,20 +1,19 @@
 import numpy as np
 from scipy import misc
 from typing import List, Union
-
+from scipy.integrate import nquad
 # credits https://moonbooks.org/Articles/How-to-implement-a-gradient-descent-in-python-to-find-a-local-minimum-/
 # credits https://stackoverflow.com/questions/28342968/how-to-plot-a-2d-gaussian-with-different-sigma
 
 # global
 START_THETA0 = -2.0  # start value for \theta_0
 START_THETA1 = 0.1  # start value for \theta_1
-
+START_THETA = np.array([-2.0, 0.1])
 
 
 
 # ----------------------------------------------------------------------------------------#
 # multivariante gaussian
-
 
 class MultivarianteGaussian:
     """Multivariante Gaussian definition and evaluation"""
@@ -28,46 +27,31 @@ class MultivarianteGaussian:
         self.mu = mu
 
     def evaluate(
-        self, theta0: Union[None, float] = None, theta1: Union[None, float] = None, theta_vec: Union[None, np.ndarray] = None
+        self, theta_vec: np.ndarray
     ):  
         """evaluate Gaussian at theta position"""
-        theta = self._vectorize(theta0, theta1, theta_vec)
-        
+                
         fac = np.einsum(
-            "...k,kl,...l->...", theta - self.mu, self.sigma_inv, theta - self.mu
+            "...k,kl,...l->...", theta_vec - self.mu, self.sigma_inv, theta_vec - self.mu
         )
         return np.exp(-fac / 2) / self.N
-    
-    @staticmethod
-    def _vectorize(theta0, theta1, theta_vec):
-        """theta as array"""
-        if theta_vec is not None and theta0 is None and theta1 is None:
-            return theta_vec
-        elif theta_vec is None and theta0 is not None and theta1 is not None:
-            return np.array((theta0, theta1))
-        else:
-            raise BaseException("either set a theta0/theta0 or theta_vec")
-        
 
-
-# ----------------------------------------------------------------------------------------#
 # Gradient Descent
-def partial_derivative(func, var=0, thetas=[]):
+def partial_derivative(func, var: int, thetas: np.ndarray):
     """for line search in one-dim parameter space"""
-    args = thetas[:]
+    args = thetas.copy()
 
     def wraps(x):
         """pick one of the thetas to optimize"""
         args[var] = x
-        return func(*args)
+        return func(args)
 
     return misc.derivative(wraps, thetas[var])
 
 
 def grad_descent(
     function_descent,
-    theta0=START_THETA0,
-    theta1=START_THETA1,
+    theta = START_THETA,
     eps=1e-07,  
     lr_alpha=3e-01,  
     nb_max_iter=1000, 
@@ -76,33 +60,38 @@ def grad_descent(
     """gradient descent
     
     :param function_descent: python function for evaluating the gradient 
-    :param theta0/theta1: float, start values of theta
+    :param theta1: float, start values of theta
     :param eps: float, stop condition
     :param lr_alpha: float, learning rate
     :param nb_max_iter: int, max iterations,
 
     :return: history, np.ndarray[3,n]
     """
-    tmp_z0 = function_descent(theta0, theta1)
-    history = [(theta0, theta1, tmp_z0)]
+    assert len(theta.shape) == 1
+    tmp_z0 = function_descent(theta)
+    history = [np.append(theta, tmp_z0)]
 
     for nb_iter in range(nb_max_iter):
-        theta0 = theta0 + lr_alpha * partial_derivative(
-            function_descent, 0, [theta0, theta1]
+
+        theta = np.fromiter(
+            (
+                theta_i + lr_alpha * partial_derivative(
+                    function_descent, i, theta
+                )
+                for i, theta_i in enumerate(theta)
+            ),
+            np.float
         )
-        theta1 = theta1 + lr_alpha * partial_derivative(
-            function_descent, 1, [theta0, theta1]
-        )
-        z0 = function_descent(theta0, theta1)
-        if abs(tmp_z0 - z0) > eps:
-            break
         
+        z0 = function_descent(theta)
+        if abs(tmp_z0 - z0) < eps:
+            break # end GD
         if verbose:
-            if nb_iter % 20 == 0:
-                print(f"iter: {nb_iter}, theta0: {str(theta0)[:5]}, theta1: {str(theta1)[:5]}, gradient: {cond}")
+            if nb_iter % 50 == 0:
+                print(f"iter: {nb_iter}, theta: {str(theta)[:5]}, gradient: {abs(tmp_z0 - z0)}")
 
         tmp_z0 = z0
-        history.append((theta0, theta1, z0))
+        history.append(np.append(theta, tmp_z0))
 
     if verbose:
         print(f"stop condition reached after {nb_iter} iterations")
@@ -111,58 +100,53 @@ def grad_descent(
 
 
 def fedavg(
-    function_descent_1,
-    function_descent_2,
+    function_clients: list,
     function_eval,
     communication_rounds=100,
     gd_steps_local=10,
-    theta0=START_THETA0,
-    theta1=START_THETA1,
+    theta: np.ndarray = START_THETA
 ):
     """Federated averaging
     
-    :param function_descent_1: python function with inputs (float, float) -> output float
-    :param function_descent_2: python function with inputs (float, float) -> output float
-    :param function_eval: python function with inputs (float, float) -> output float
+    :param function_clients: List of python method with inputs (np.ndarrray) -> output float
+    :param function_eval: python method with inputs (np.ndarrray) -> output float
     :param communication_rounds: int, number of rounds
     :param gd_steps_local: int, number of gradient decent steps
-    :param theta0: model weight, float
-    :param theta1: model weight, float
+    :param theta: model weight, float
 
     return history_server, history_client1, history_client2
     """
-    x1_x2_z = np.array((theta0, theta1, function_eval(theta0=theta0, theta1=theta1)))
-    history_server, history_client1, history_client2 = [], [], []
-    history_server.append(x1_x2_z.tolist())
+    
+    history_server, history_clients = [], []
+    history_server.append(theta)
 
     for i in range(communication_rounds):
-        # local epochs, client 1
-        t1_t2_z_descent1 = grad_descent(
-            function_descent_1,
-            theta0=x1_x2_z[0],
-            theta1=x1_x2_z[1],
-            nb_max_iter=gd_steps_local,
-        )
-        # local epochs, client 2
-        t1_t2_z_descent2 = grad_descent(
-            function_descent_2,
-            theta0=x1_x2_z[0],
-            theta1=x1_x2_z[1],
-            nb_max_iter=gd_steps_local,
-        )
-        # Average Update, server
-        x1_x2_z = (t1_t2_z_descent1[-1, :] + t1_t2_z_descent2[-1, :]) / 2
-        x1_x2_z[2] = function_eval(theta0=x1_x2_z[0], theta1=x1_x2_z[1])
+        # collect the most updated theta from each client after GD
+        client_resposes_theta = [
+            # distribute theta to each client and do GD
+            grad_descent(
+                fct_client, # over the client distribution
+                theta = theta, # current theta
+                nb_max_iter=gd_steps_local # run for k steps
+            )[-1,:]
+            for fct_client in function_clients
+        ]
+        
+        # Average update from clients on server
+        theta = np.average(client_resposes_theta, axis=0)[:-1]
+        
+        # done
+        history_server.append(theta)
+        history_clients.append(client_resposes_theta)
 
-        history_server.append(x1_x2_z.tolist())
-        history_client1.append(t1_t2_z_descent1.tolist())
-        history_client2.append(t1_t2_z_descent2.tolist())
-
+    history_server = np.array(history_server)
     return (
-        np.array(history_server),
-        np.array(history_client1, dtype=object),
-        np.array(history_client2, dtype=object),
+        np.concatenate((history_server, function_eval(history_server)[:, None]), axis=1),
+        np.array(history_clients, dtype=object),
     )
+
+
+# ----------------------------------------------------------------------------------------#
 
 
 
@@ -174,15 +158,32 @@ m2 = MultivarianteGaussian(
     np.array([0, -1.2]), sigma=np.array([[1.5, 0.6], [0.9, 1.0]])
 )
 
-# draw global distribution (add both )
-def f_added(theta0: float = None, theta1: float = None, theta_vec: float = None):
-    
-    if theta_vec is not None and theta0 is None and theta1 is None:
-        pos = theta_vec
-    elif theta_vec is None and theta0 is not None and theta1 is not None:
-        pos = np.array((theta0, theta1))
-    else:
-        raise BaseException("either set a theta0/theta0 or theta_vec")
-    
-    return m1.evaluate(theta_vec = pos) + m2.evaluate(theta_vec = pos)
 
+
+# draw global distribution (multiply both )
+class PDFsManipulate:
+    def __init__(self, functions, method = np.multiply, shape_theta = (2,), range_l = (-100,100)) -> None:
+        self.functions = functions
+        self.method = method
+        self.shape_theta = shape_theta
+        ranges = list([range_l for i in range(shape_theta[0])])
+        # integrate pdf by discret integration over ranges range_l of theta possibilities
+        self.normalizer_pdf = nquad(func = self._eval_args, ranges=ranges)[0]
+        
+    def _eval_args(self, *args):
+        return self.evaluate(np.fromiter(args, np.float), normalize_pdf=False)
+
+    def evaluate(self, theta_vec: np.ndarray, normalize_pdf=True):
+        assert theta_vec.shape[-1] == self.shape_theta[0]
+        if normalize_pdf:
+            norm =  self.normalizer_pdf 
+        else:
+            norm = 1
+        return self.method(*[fct(theta_vec) for fct in self.functions]) / norm
+
+
+f_multi = PDFsManipulate(functions=[m1.evaluate, m2.evaluate], method = np.multiply)
+f_add = PDFsManipulate(functions=[m1.evaluate, m2.evaluate], method = np.add)
+
+
+print(PDFsManipulate(functions=[m1.evaluate, m1.evaluate], method = np.add).normalizer_pdf)
