@@ -34,8 +34,6 @@ except:
 
 
 OUTPUT_FOLDER = ".\\plot_output"
-print(f"output graphs to folder: {OUTPUT_FOLDER}")
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # ----------------------------------------------------------------------------------------#
 # plotting utils
@@ -384,6 +382,8 @@ Z2 = m2.evaluate(theta_vec = SAMPLE_GRID_VECTOR)
 
 
 if __name__ == "__main__":
+    print(f"output graphs to folder: {OUTPUT_FOLDER}")
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     # 2D plots
 
     mpld3_multivariante_2d_gd(

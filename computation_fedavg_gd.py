@@ -2,6 +2,9 @@ import numpy as np
 from scipy import misc
 from typing import List, Union
 
+# credits https://moonbooks.org/Articles/How-to-implement-a-gradient-descent-in-python-to-find-a-local-minimum-/
+# credits https://stackoverflow.com/questions/28342968/how-to-plot-a-2d-gaussian-with-different-sigma
+
 # global
 START_THETA0 = -2.0  # start value for \theta_0
 START_THETA1 = 0.1  # start value for \theta_1
@@ -14,7 +17,7 @@ START_THETA1 = 0.1  # start value for \theta_1
 
 
 class MultivarianteGaussian:
-    # credits https://stackoverflow.com/questions/28342968/how-to-plot-a-2d-gaussian-with-different-sigma
+    """Multivariante Gaussian definition and evaluation"""
     def __init__(self, mu, sigma) -> None:
         assert mu.shape[0] ==sigma.shape[0] == sigma.shape[1]
         self.n = mu.shape[0]
@@ -26,24 +29,31 @@ class MultivarianteGaussian:
 
     def evaluate(
         self, theta0: Union[None, float] = None, theta1: Union[None, float] = None, theta_vec: Union[None, np.ndarray] = None
-    ):
-        if theta_vec is not None and theta0 is None and theta1 is None:
-            pos = theta_vec
-        elif theta_vec is None and theta0 is not None and theta1 is not None:
-            pos = np.array((theta0, theta1))
-        else:
-            raise BaseException("either set a theta0/theta0 or theta_vec")
+    ):  
+        """evaluate Gaussian at theta position"""
+        theta = self._vectorize(theta0, theta1, theta_vec)
+        
         fac = np.einsum(
-            "...k,kl,...l->...", pos - self.mu, self.sigma_inv, pos - self.mu
+            "...k,kl,...l->...", theta - self.mu, self.sigma_inv, theta - self.mu
         )
         return np.exp(-fac / 2) / self.N
+    
+    @staticmethod
+    def _vectorize(theta0, theta1, theta_vec):
+        """theta as array"""
+        if theta_vec is not None and theta0 is None and theta1 is None:
+            return theta_vec
+        elif theta_vec is None and theta0 is not None and theta1 is not None:
+            return np.array((theta0, theta1))
+        else:
+            raise BaseException("either set a theta0/theta0 or theta_vec")
+        
 
 
 # ----------------------------------------------------------------------------------------#
 # Gradient Descent
 def partial_derivative(func, var=0, thetas=[]):
     """for line search in one-dim parameter space"""
-    # credits https://moonbooks.org/Articles/How-to-implement-a-gradient-descent-in-python-to-find-a-local-minimum-/
     args = thetas[:]
 
     def wraps(x):
@@ -58,9 +68,9 @@ def grad_descent(
     function_descent,
     theta0=START_THETA0,
     theta1=START_THETA1,
-    eps=1e-07,  # stop condition
-    lr_alpha=3e-01,  # learning rate
-    nb_max_iter=1000,  # max iterations,
+    eps=1e-07,  
+    lr_alpha=3e-01,  
+    nb_max_iter=1000, 
     verbose=0,
 ):
     """gradient descent
@@ -68,18 +78,15 @@ def grad_descent(
     :param function_descent: python function for evaluating the gradient 
     :param theta0/theta1: float, start values of theta
     :param eps: float, stop condition
-    :param lr_alpha: float,learning rate
+    :param lr_alpha: float, learning rate
     :param nb_max_iter: int, max iterations,
 
     :return: history, np.ndarray[3,n]
     """
-    # credits https://moonbooks.org/Articles/How-to-implement-a-gradient-descent-in-python-to-find-a-local-minimum-/
-    cond = eps + 10.0
-    nb_iter = 0
     tmp_z0 = function_descent(theta0, theta1)
     history = [(theta0, theta1, tmp_z0)]
 
-    while cond > eps and nb_iter < nb_max_iter:
+    for nb_iter in range(nb_max_iter):
         theta0 = theta0 + lr_alpha * partial_derivative(
             function_descent, 0, [theta0, theta1]
         )
@@ -87,14 +94,19 @@ def grad_descent(
             function_descent, 1, [theta0, theta1]
         )
         z0 = function_descent(theta0, theta1)
-        nb_iter += 1
-        cond = abs(tmp_z0 - z0)
+        if abs(tmp_z0 - z0) > eps:
+            break
+        
+        if verbose:
+            if nb_iter % 20 == 0:
+                print(f"iter: {nb_iter}, theta0: {str(theta0)[:5]}, theta1: {str(theta1)[:5]}, gradient: {cond}")
+
         tmp_z0 = z0
-        if nb_iter % 20 == 0 and verbose:
-            print(f"iter: {nb_iter}, theta0: {str(theta0)[:5]}, theta1: {str(theta1)[:5]}, gradient: {cond}")
         history.append((theta0, theta1, z0))
+
     if verbose:
         print(f"stop condition reached after {nb_iter} iterations")
+    
     return np.array(history)
 
 
