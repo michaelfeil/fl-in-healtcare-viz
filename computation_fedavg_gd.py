@@ -13,9 +13,9 @@ START_THETA = np.array([-2.0, 0.1])
 
 
 # ----------------------------------------------------------------------------------------#
-# multivariante gaussian
+# multivariate gaussian
 
-class MultivarianteGaussian:
+class MultivariateGaussian:
     """Multivariante Gaussian definition and evaluation"""
     def __init__(self, mu, sigma) -> None:
         assert mu.ndim == 1 and sigma.ndim == 2
@@ -152,10 +152,10 @@ def fedavg(
 
 
 # draw the two client distributions
-m1 = MultivarianteGaussian(
+m1 = MultivariateGaussian(
     mu=np.array([0, 1]), sigma=np.array([[1.0, -0.9], [-0.5, 1.5]])
 )
-m2 = MultivarianteGaussian(
+m2 = MultivariateGaussian(
     np.array([0, -1.2]), sigma=np.array([[1.5, 0.6], [0.9, 1.0]])
 )
 

@@ -51,7 +51,7 @@ def resample_history(history: np.ndarray, function, n_min=32):
     return history
 
 
-def mpl_multivariante_3d_gd(
+def mpl_multivariate_3d_gd(
     filename: str= "",
     name_labels: List[str] = [],
     colors: List[str] = [],
@@ -200,7 +200,7 @@ def mpl_multivariante_3d_gd(
     return fig
 
 
-def mpld3_multivariante_2d_gd(
+def mpld3_multivariate_2d_gd(
     filename: str= "",
     name_labels: List[str] = [],
     colors: List[str] = [],
@@ -371,7 +371,7 @@ if __name__ == "__main__":
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     # 2D plots
 
-    mpld3_multivariante_2d_gd(
+    mpld3_multivariate_2d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_clients_only"),
         name_labels=[],
         colors=[],
@@ -382,7 +382,7 @@ if __name__ == "__main__":
         title="Client distributions only",
     )
 
-    mpld3_multivariante_2d_gd(
+    mpld3_multivariate_2d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd_2d"),
         name_labels=[" GD client 1&2", " GD client 2", " GD client 1"],
         colors=["purple", "orange", "green"],
@@ -393,7 +393,7 @@ if __name__ == "__main__":
         title="GD on Clients and theoretical accumulated global distributions",
     )
 
-    mpld3_multivariante_2d_gd(
+    mpld3_multivariate_2d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd_2d_fedavg"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
@@ -408,7 +408,7 @@ if __name__ == "__main__":
         title="FedAvg from \u03F4 = (-2,0.1)",
     )
 
-    mpld3_multivariante_2d_gd(
+    mpld3_multivariate_2d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd_2d_fedavg_start2"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
@@ -427,7 +427,7 @@ if __name__ == "__main__":
 
     # run some plots
 
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd_single"),
         name_labels=["GD client 1&2"],
         colors=[
@@ -442,7 +442,7 @@ if __name__ == "__main__":
         fedavg_eval=f_multi.evaluate,
     )
 
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_add_argmax_single"),
         name_labels=["argmax client 1&2"],  
         colors=[
@@ -456,7 +456,7 @@ if __name__ == "__main__":
         hist_slice=slice(-2, None), # does not actually do argmax, but just plot last step of GD
     )
 
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_add_gd"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
@@ -469,7 +469,7 @@ if __name__ == "__main__":
 
 
 
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_2_gd"),
         name_labels=["GD client 2"],
         colors=["orange"],
@@ -480,7 +480,7 @@ if __name__ == "__main__":
         fedavg_eval=m2.evaluate,
     )
 
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_1_gd"),
         name_labels=["GD client 1"],
         colors=["green"],
@@ -490,7 +490,7 @@ if __name__ == "__main__":
         label_target=["client 1 target"],
         fedavg_eval=m1.evaluate,
     )
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_addfedavg_gd_10_100"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
@@ -504,7 +504,7 @@ if __name__ == "__main__":
         fedavg_steps_local=[100],
         title="FedAvg 10 rounds with 100 gd steps",
     )
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_addfedavg_gd_2_1000"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
@@ -518,7 +518,7 @@ if __name__ == "__main__":
         fedavg_steps_local=[500],
         title="FedAvg 2 rounds with 1000 gd steps",
     )
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_addfedavg_gd_50_20"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
@@ -532,7 +532,7 @@ if __name__ == "__main__":
         fedavg_steps_local=[20],
         title="FedAvg 50 rounds with 20 gd steps",
     )
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_addfedavg_gd_1000_1"),
         name_labels=["GD client 1&2", "GD client 2", "GD client 1"],
         colors=["purple", "orange", "green"],
@@ -546,7 +546,7 @@ if __name__ == "__main__":
         fedavg_steps_local=[1],
         title="FedAvg 1000 rounds with 1 gd step",
     )
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_1_no-gd"),
         name_labels=[],
         colors=[],
@@ -557,7 +557,7 @@ if __name__ == "__main__":
         fedavg_eval=f_multi.evaluate,
     )
 
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_2_no-gd"),
         name_labels=[],
         colors=[],
@@ -567,7 +567,7 @@ if __name__ == "__main__":
         label_target=["client 2 target"],
         fedavg_eval=f_multi.evaluate,
     )
-    mpl_multivariante_3d_gd(
+    mpl_multivariate_3d_gd(
         filename=os.path.join(OUTPUT_FOLDER, "pdf_add_no-gd"),
         name_labels=[],
         colors=[],
