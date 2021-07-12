@@ -94,8 +94,8 @@ def mpl_multivariate_3d_gd(
     ), "incorrect settings. only one target function can be plotted"
 
     print(
-        f"create 3D plot using SGD on {list(zip(name_labels, colors))}"
-        f"over distribution {label_target}"
+        f"create 3D plot using SGD on {list(zip(name_labels, colors))} "
+        f"over distribution {list(zip(label_target, cmap_target))}"
     )
 
     # 3D Settings
