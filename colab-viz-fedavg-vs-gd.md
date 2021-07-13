@@ -37,14 +37,29 @@ In the past (or better say before 2017), your proposal was, that everyone of you
 
 The introduction of **Federated Averaging (FedAvg)** by McMahan et al.[[2](#z2)] in 2017 enables us now, to train a model without uploading any images to any kind of central server. Isn't that great!?! Let's look at the images below.
 
+<head>
+<style>
+figure {
+  width: 100%;
+  margin: auto;
+  text-align: center;
+}
+
+figcaption {
+  font-style: italic;
+  padding: 2px;
+  text-align: center;
+}
+
+</style>
+</head>
+
 <figure>
-    <center>
-    <a class="anchor" id="Figure1"></a>
-    <img src="https://raw.githubusercontent.com/michaelfeil/fl-in-healtcare-viz/main/blog_imgs/peter_kairouz_advances_in_FL.png" alt='missing image' width="600"/>
-    <a href=#z3>
-        <figcaption> Figure1 © Image adapted from Peter Kairouz [3] </figcaption>
+    <a class="anchor" id="Figure2"></a>
+    <img src="https://raw.githubusercontent.com/michaelfeil/fl-in-healtcare-viz/main/blog_imgs/fedavg-and-fedpa-illustration.gif" alt='missing gif fedavg-and-fedpa-illustration'/>
+    <a href=#z4>
+    <figcaption> Figure2 © GIF adapted from Maruan Al-Shedivat [4] </figcaption>
     </a>
-    </center>
 </figure> 
 
 As in the [Figure1](#Figure1) above, in the case of ***cross-device*** FL with FedAvg, our cloud-based central server will send an initial state of the model parameters to thousands of mobile devices at once. The clients then update their version of the model parameters using **stochastic gradient descent (SGD)**. By doing more SGD steps, we train more each **communication round**, and therefore improve the **communication efficiency**. The updated model parameters get communicated back to the central server, where the client parameters get aggregated using **weighted averaging**. The process then starts again into the next communication round with the slightly improved parameters of our model. 
