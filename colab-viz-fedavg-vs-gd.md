@@ -1,11 +1,10 @@
-<!---
 ---
 title: "Blog: On the drawbacks of FedAvg and the benefits of Posterior Averaging"
 excerpt: "A visual study of FedAvg and the Posterior in Federated Learning"
 collection: projects
 ---    
--->
-
+# Blog: On the drawbacks of FedAvg and the benefits of Posterior Averaging
+### A visual study of FedAvg and the Posterior in Federated Learning
 
 | Author      | Date        | Vaccancy | Reading time |
 | ----------- | ----------- | ---- | ---- |
@@ -23,6 +22,7 @@ collection: projects
 * [3.2: Back on track: Federated Averaging](#ref3.2)
 * [3.3: How to mess with Federated Averaging](#ref3.3)
 * [**Part 4**: Our salvation: Posterior Averaging?](#ref4)
+* [4.1: FedPA: Beyond the simplified implementation ](#ref4.1)
 * [**Part 5**: Summary](#ref5)
 * [**Part 6**: References](#ref6)
 
@@ -55,8 +55,8 @@ figcaption {
 <figure>
     <a class="anchor" id="Figure1"></a>
     <img src="https://raw.githubusercontent.com/michaelfeil/fl-in-healtcare-viz/main/blog_imgs/peter_kairouz_advances_in_FL.png" alt='missing image'/>
-    <a href=#z3>
-    <figcaption style="text-align: center"> Figure1 © Image adapted from Peter Kairouz [3] </figcaption>
+    <a >
+    <figcaption href=#z3 style="text-align: center"> Figure1 © Image adapted from Peter Kairouz [3] </figcaption>
     </a>
 </figure> 
 
@@ -176,7 +176,7 @@ fig = client_function_draw(J2, cmap="Oranges")
     
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -187,7 +187,7 @@ fig = client_function_draw(J2, cmap="Oranges")
     
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -244,7 +244,7 @@ fig = ax.legend()
     
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -284,7 +284,7 @@ fig = mpl_multivariate_3d_gd(
     
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -296,7 +296,7 @@ fig = mpl_multivariate_3d_gd(
     
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -415,7 +415,7 @@ ax = client_function_draw(J_exact, cmap="Purples")
     
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -444,7 +444,7 @@ fig = mpl_multivariate_3d_gd(
     
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -528,7 +528,7 @@ print("\u03F4_final:  ",server_history[-1,:-1], "\n\u03F4_optimum:", mu_global_p
 ```
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -581,7 +581,7 @@ print("\u03F4_final:  ",server_history[-1,:-1], "\n\u03F4_optimum:", mu_global_p
 ```
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -714,7 +714,7 @@ print("\u03F4_final:  ", server_history[-1,], "\n\u03F4_optimum:", mu_global_pos
 ```
 
 
-    <IPython.core.display.Javascript object>
+    
 
 
 
@@ -729,7 +729,7 @@ Finally, we made it! Our  FedPA "Light" converged to the optimum!
 
 ## 4.1 FedPA: Beyond the simplified implementation <a class="anchor" id="ref4.1"></a>
 
-In this chapter, we already used Posterior Averaging to find our optimal $\theta$. As you can see in [Figure2 below](#Figure2), instead of using GD on the clients, we estimated our covariance and our $mu$ of the clients posterior distribution, and then send back the computed $\Delta$ .
+In this chapter, we already used Posterior Averaging to find our optimal $\theta$. As you can see in [Figure2 below](#Figure2), instead of using GD on the clients, we estimated our covariance and our $\mu$ of the clients posterior distribution, and then send back the computed $\Delta$ .
 
 <head>
 <style>
@@ -756,7 +756,7 @@ figcaption {
     </a>
 </figure> 
 
-Reading the Blog from Maruan Al-Shedivat, the Author of FedPA was very valuable for me, and also a decision to create this Notebook Blog, instead of "just a copy" of the original. I can warmly recommend you to read and work through the [Blog](https://blog.ml.cmu.edu/2021/02/19/an-inferential-perspective-on-federated-learning/) and [Code](https://github.com/alshedivat/fedpa).
+Reading the Blog from Maruan Al-Shedivat, the Author of FedPA was very valuable for me, and also a decision to create this Notebook Blog, instead of a blog which might be similar the authors' original. I can warmly recommend you to read and work through both, the [Blog](https://blog.ml.cmu.edu/2021/02/19/an-inferential-perspective-on-federated-learning/) and the [Code](https://github.com/alshedivat/fedpa).
 
 #  **Part 5**: Summary <a class="anchor" id="ref5"></a>
 
