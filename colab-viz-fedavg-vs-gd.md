@@ -763,7 +763,7 @@ figcaption {
     </a>
 </figure> 
 
-Reading the blog about FedPA from Maruan Al-Shedivat [1] was very valuable for me. I can warmly recommend to read and work through both, the [blog](https://blog.ml.cmu.edu/2021/02/19/an-inferential-perspective-on-federated-learning/) and the [code](https://github.com/alshedivat/fedpa). This also motivated me in the decision to create this Notebook Blog, instead of 'just' a blog which might be similar the authors' original.
+Reading the blog about FedPA from Maruan Al-Shedivat [1] was very valuable for me. I can warmly recommend to read and work through both, the [blog](https://blog.ml.cmu.edu/2021/02/19/an-inferential-perspective-on-federated-learning/) and the [code](https://github.com/alshedivat/fedpa). This also motivated me in the decision to create this Notebook Blog, instead of 'just' a blog similar the authors' original.
 
 #  **Part 5**: Summary <a class="anchor" id="ref5"></a>
 
